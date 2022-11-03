@@ -1,0 +1,9 @@
+#root {
+    background-color: #009688;
+}
+
+#MessageInput {
+    padding: 5px;
+    border-radius: 10px;
+    background-color: #414141;
+}
