@@ -5,6 +5,9 @@ module.exports = {
   mode: process.NODE_ENV || "development",
   entry: "./src",
   target: "node",
+  experiments: {
+    topLevelAwait: true
+  },
   output: {
     path: path.resolve(__dirname, "dist"),
     filename: "index.js"

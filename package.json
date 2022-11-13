@@ -2,10 +2,10 @@
   "name": "nodegui-starter",
   "version": "1.0.0",
   "main": "index.js",
-  "author": "Atul R <atulanand94@gmail.com>",
-  "license": "MIT",
+  "author": "Justin Schy",
   "private": true,
   "scripts": {
+    "prod": "npm run build && npx nodegui-packer --pack ./dist",
     "build": "webpack --mode production",
     "start": "webpack && qode ./dist/index.js",
     "debug": "webpack && qode --inspect ./dist/index.js"
