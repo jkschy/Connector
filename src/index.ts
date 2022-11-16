@@ -1,5 +1,4 @@
 import {AlignmentFlag, Direction, QBoxLayout, QMainWindow, QWidget,} from '@nodegui/nodegui';
-import {root} from "postcss";
 import Button from "./components/Generic/Button";
 import Input from "./components/Generic/Input";
 import HStack from "./components/Generic/HStack";
@@ -10,9 +9,7 @@ import exec from "child_process"
 import {Fonts} from "./Utils/FontProvider";
 import {RemoteInfo} from "dgram";
 import ConnectionDialog from "./components/ConnectionDialog";
-
 const Server = require("./Server").default
-new Server().start();
 
 const res = exec.execSync("ipconfig getifaddr en0").toString().trim();
 
@@ -53,7 +50,7 @@ sendButton.tooltip("Send Message!")
 
 const connectionDialog = ConnectionDialog(`${server.serverIp()}:${server.serverPort()}`, (value) => {
     connectionAddress = value.substring(0, value.indexOf(":"))
-    connectionPort = parseInt(value.substring(value.indexOf(":") + 1, value.length));
+    connectionPort = parseInt(value.substring(value.indexOf(":") + 1, value.length + 1));
     sendButton.enable()
 })
 

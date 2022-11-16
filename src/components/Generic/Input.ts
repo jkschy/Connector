@@ -13,7 +13,7 @@ class Input {
         }
 
         if (onKeyPress) {
-            this.qInput.addEventListener(WidgetEventTypes.KeyPress,
+            this.qInput.addEventListener(WidgetEventTypes.KeyRelease,
                 (event) => onKeyPress(this.qInput.text()))
         }
 
