@@ -1,4 +1,4 @@
-import {AlignmentFlag, Direction, QBoxLayout, QMainWindow, QWidget,} from '@nodegui/nodegui';
+import {AlignmentFlag, Direction, QBoxLayout, QIcon, QMainWindow, QWidget,} from '@nodegui/nodegui';
 import Button from "./components/Generic/Button";
 import Input from "./components/Generic/Input";
 import HStack from "./components/Generic/HStack";
@@ -8,10 +8,12 @@ import {randomUUID} from "crypto";
 import exec from "child_process"
 import {Fonts} from "./Utils/FontProvider";
 import {RemoteInfo} from "dgram";
-import ConnectionDialog from "./components/ConnectionDialog";
+import ConnectionDisplay from "./components/ConnectionDisplay";
+
 const Server = require("./Server").default
 
 const res = exec.execSync("ipconfig getifaddr en0").toString().trim();
+console.log(res);
 
 const server = new Server(res)
 await server.start(true);
@@ -23,13 +25,21 @@ server.onMessage((msg: string, rinfo: RemoteInfo) => {
     if (connectionAddress !== rinfo.address) {
         connectionAddress = rinfo.address
         connectionPort = rinfo.port
+        connectionInput.value = `${connectionAddress}:${connectionPort}`
+        connected.foundConnection();
         sendButton.enable()
     }
    addMessage(msg, false)
 })
 
+server.onConnectionSuccess(() => {
+    sendButton.enable();
+    connected.foundConnection()
+})
+
 const win = new QMainWindow();
 win.setWindowTitle("Connector - " + server.serverPort());
+win.setWindowIcon(new QIcon("assets/Logo.png"))
 
 const centralWidget = new QWidget();
 centralWidget.setObjectName("root");
@@ -37,39 +47,37 @@ centralWidget.setObjectName("root");
 const rootLayout = new QBoxLayout(Direction.TopToBottom);
 centralWidget.setLayout(rootLayout);
 
-const messageInput = new Input("MessageInput", "Message", 32, Fonts.Input)
+const messageInput = new Input({id:"MessageInput", height: 32, width: 350, font: Fonts.Message, placeholder: "Message", onKeyPress: () => {}})
 
-const sendButton = new Button("sendMessageButton", "⏎", true, Fonts.SendButton);
+const sendButton = new Button({id: "sendMessageButton", buttonText: "⏎", disabled: true, font: Fonts.SendButton});
 sendButton.onClick(() => {
     server.sendMessage(messageInput.value, connectionPort, connectionAddress)
     addMessage(messageInput.value, true)
     messageInput.value = ""
 })
 
-sendButton.tooltip("Send Message!")
-
-const connectionDialog = ConnectionDialog(`${server.serverIp()}:${server.serverPort()}`, (value) => {
+const connectionInput = new Input({id: "connectionInput", placeholder: "Connection Address", font: Fonts.Message, width: 300});
+connectionInput.onChange((value) => {
+    connected.lostConnection();
     connectionAddress = value.substring(0, value.indexOf(":"))
     connectionPort = parseInt(value.substring(value.indexOf(":") + 1, value.length + 1));
-    sendButton.enable()
+    if (connectionAddress && connectionPort && connectionPort.toString().length === 4) {
+        server.sendConnectionRequest(connectionAddress, connectionPort);
+    }
 })
 
-const addConnectionButton = new Button("addConnection", "🔗", false, undefined);
-addConnectionButton.onClick(() => {
-    connectionDialog.show()
-})
+const connected = new ConnectionDisplay();
+const config = new Button({id: "config", buttonText: "⚙︎", font: Fonts.Title})
 
-addConnectionButton.tooltip("Add Connection!")
-
-
-const topStack = new HStack("topStack", AlignmentFlag.AlignRight)
-topStack.addChildren(addConnectionButton.getWidget())
+const topStack = new HStack("topStack")
+topStack.addChildren(connected.getWidget(), connectionInput.getWidget(), config.getWidget());
 
 const messageArea = new VStack()
 messageArea.getWidget().setMinimumHeight(400)
 
 const addMessage = (message: string, self: boolean) => {
-    messageArea.addChildren(new Label(randomUUID(), message, Fonts.Message).align(self ? AlignmentFlag.AlignRight | AlignmentFlag.AlignBottom : AlignmentFlag.AlignLeft | AlignmentFlag.AlignBottom).getWidget())
+    const messageLabel = new Label(randomUUID(), message, Fonts.Message).align(self ? AlignmentFlag.AlignRight | AlignmentFlag.AlignBottom : AlignmentFlag.AlignLeft | AlignmentFlag.AlignBottom);
+    messageArea.addChildren(messageLabel.getWidget())
 }
 
 const actionArea = new HStack("ActionArea", AlignmentFlag.AlignJustify)
@@ -80,7 +88,7 @@ rootLayout.addWidget(messageArea.getWidget())
 rootLayout.addWidget(actionArea.getWidget())
 win.setStyleSheet(`
 #root {
-    background-color: #000;
+    background-color: black;
 }
 
 #MessageInput {
@@ -101,13 +109,26 @@ win.setStyleSheet(`
     border-radius: 15px
 }
 
+#connectionInput {
+    background-color: white;
+    color: black;
+    border: none;
+    background-color: #f0f0f0;
+    border-radius: 15px;
+}
+
+#config {
+    background-color: transparent;
+    border: none;
+    margin-left: 25px;
+}
+
 #addConnection {
     background-color: #404040;
     padding: 5px;
     border-radius: 15px;
 }`);
 win.setCentralWidget(centralWidget);
-
 win.show();
 
 (global as any).win = win;
