@@ -13,7 +13,6 @@ import ConnectionDisplay from "./components/ConnectionDisplay";
 const Server = require("./Server").default
 
 const res = exec.execSync("ipconfig getifaddr en0").toString().trim();
-console.log(res);
 
 const server = new Server(res)
 await server.start(true);
@@ -47,14 +46,23 @@ centralWidget.setObjectName("root");
 const rootLayout = new QBoxLayout(Direction.TopToBottom);
 centralWidget.setLayout(rootLayout);
 
-const messageInput = new Input({id:"MessageInput", height: 32, width: 350, font: Fonts.Message, placeholder: "Message", onKeyPress: () => {}})
-
-const sendButton = new Button({id: "sendMessageButton", buttonText: "⏎", disabled: true, font: Fonts.SendButton});
-sendButton.onClick(() => {
+const sendMessage = () => {
     server.sendMessage(messageInput.value, connectionPort, connectionAddress)
     addMessage(messageInput.value, true)
     messageInput.value = ""
-})
+}
+
+const messageInput = new Input({id:"MessageInput", height: 32, width: 350, font: Fonts.Message, placeholder: "Message", onKeyPress: (key) => {
+    if (key === "Enter") {
+        sendMessage()
+    }
+}})
+
+const sendButton = new Button({id: "sendMessageButton", buttonText: "⏎", disabled: true, font: Fonts.SendButton});
+sendButton.onClick(sendMessage)
+
+const messageArea = new VStack()
+messageArea.getWidget().setMinimumHeight(600)
 
 const connectionInput = new Input({id: "connectionInput", placeholder: "Connection Address", font: Fonts.Message, width: 300});
 connectionInput.onChange((value) => {
@@ -67,16 +75,16 @@ connectionInput.onChange((value) => {
 })
 
 const connected = new ConnectionDisplay();
-const config = new Button({id: "config", buttonText: "⚙︎", font: Fonts.Title})
+const config = new Button({id: "config", buttonText: "⚙︎", font: Fonts.Icon})
 
 const topStack = new HStack("topStack")
 topStack.addChildren(connected.getWidget(), connectionInput.getWidget(), config.getWidget());
 
-const messageArea = new VStack()
-messageArea.getWidget().setMinimumHeight(400)
+const addressLabel = new Label({id: "ip", text: `${res}:${server.serverPort()}`, font: Fonts.Title});
+const address = new HStack("ip-address").addChildren(addressLabel.getWidget())
 
 const addMessage = (message: string, self: boolean) => {
-    const messageLabel = new Label(randomUUID(), message, Fonts.Message).align(self ? AlignmentFlag.AlignRight | AlignmentFlag.AlignBottom : AlignmentFlag.AlignLeft | AlignmentFlag.AlignBottom);
+    const messageLabel = new Label({id: randomUUID(), text:message, font:Fonts.Message}).align(self ? AlignmentFlag.AlignRight | AlignmentFlag.AlignBottom : AlignmentFlag.AlignLeft | AlignmentFlag.AlignBottom);
     messageArea.addChildren(messageLabel.getWidget())
 }
 
@@ -84,6 +92,7 @@ const actionArea = new HStack("ActionArea", AlignmentFlag.AlignJustify)
 actionArea.addChildren(messageInput.getWidget(), sendButton.getWidget())
 
 rootLayout.addWidget(topStack.getWidget())
+rootLayout.addWidget(address.getWidget())
 rootLayout.addWidget(messageArea.getWidget())
 rootLayout.addWidget(actionArea.getWidget())
 win.setStyleSheet(`
@@ -121,6 +130,19 @@ win.setStyleSheet(`
     background-color: transparent;
     border: none;
     margin-left: 25px;
+    height: 50%;
+    padding: -5px 5px 1px 5px;
+    border-radius: 5px;
+    color: white !important;
+}
+
+#config:hover {
+    background-color: #ababab;
+    color: black;
+}
+
+#ip-address {
+    width: 100%;
 }
 
 #addConnection {

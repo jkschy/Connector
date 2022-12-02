@@ -10,7 +10,7 @@ class VStack {
 
         if (elements) {
             elements.forEach((element) => {
-                this.vStack.addWidget(element)
+                this.vStack.addWidget(element);
             })
         }
     }

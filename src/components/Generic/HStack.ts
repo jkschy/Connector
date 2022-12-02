@@ -18,6 +18,7 @@ class HStack {
         elements.forEach((element) => {
             this.hStack.addWidget(element)
         })
+        return this;
     }
 
     withStyles(stylesheet: string) {

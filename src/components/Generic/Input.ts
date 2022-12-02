@@ -26,15 +26,16 @@ class Input {
         this.qInput.setAttribute(WidgetAttribute.WA_MacShowFocusRect, false);
         this.qInput.setInlineStyle("border: none;");
         this.qInput.setCursor(CursorShape.IBeamCursor)
+        if (onKeyPress) {
+            this.onKeyPress(onKeyPress)
+        }
     }
 
     public onChange(callback: (value: string) => void) {
         this.qInput.addEventListener(WidgetEventTypes.KeyRelease, () => callback(this.qInput.text()))
     }
 
-    public onKeyPress(callback: (key: string) => void) {
-        this.qInput.addEventListener(WidgetEventTypes.KeyPress, (event) => console.log(event))
-    }
+    public onKeyPress(callback: (key: string) => void) {}
 
     public get value() {
         return this.qInput.text();

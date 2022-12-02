@@ -5,12 +5,13 @@ class FontProvider {
     private static INSTANCE: FontProvider
 
     private constructor() {
-        const titleFont = new QFont("roboto", 50, 300)
-        const subtitleFont = new QFont("roboto", 10, 100)
-        const buttonFont = new QFont("roboto", 30, 300);
-        const sendButtonFont = new QFont("roboto", 15, 200);
-        const messageFont = new QFont("roboto", 18, 200);
-        const inputFont = new QFont("roboto", 18, 200);
+        const titleFont = new QFont("Roboto", 50, 300)
+        const subtitleFont = new QFont("Roboto", 10, 100)
+        const buttonFont = new QFont("Roboto", 30, 300);
+        const sendButtonFont = new QFont("Roboto", 15, 200);
+        const messageFont = new QFont("Roboto", 18, 200);
+        const inputFont = new QFont("Roboto", 18, 200);
+        const iconFont = new QFont("Roboto", 60, 300);
 
         this.fonts.set(Fonts.Title, titleFont)
         this.fonts.set(Fonts.Subtitle, subtitleFont)
@@ -18,6 +19,7 @@ class FontProvider {
         this.fonts.set(Fonts.Message, messageFont)
         this.fonts.set(Fonts.SendButton, sendButtonFont)
         this.fonts.set(Fonts.Input, inputFont)
+        this.fonts.set(Fonts.Icon, iconFont);
     }
 
 
@@ -42,7 +44,8 @@ export enum Fonts {
     Button,
     Message,
     SendButton,
-    Input
+    Input,
+    Icon
 }
 
 export default FontProvider

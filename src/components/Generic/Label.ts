@@ -1,13 +1,19 @@
-import {AlignmentFlag, QLabel} from "@nodegui/nodegui";
+import {AlignmentFlag, QFont, QLabel} from "@nodegui/nodegui";
 import FontProvider, {Fonts} from "../../Utils/FontProvider";
+import {DefaultProps} from "../../Utils/Utils";
+
+interface LabelProps extends DefaultProps{
+    text: string,
+    font?: Fonts,
+}
 
 class Label {
     private qLabel: QLabel = new QLabel()
 
-    constructor(id: string, text: string, font?: Fonts) {
-        this.qLabel.setObjectName(id)
-        this.qLabel.setText(text);
-        this.qLabel.setFont(FontProvider.getFont(font ? font : Fonts.Subtitle))
+    constructor(props: LabelProps) {
+        this.qLabel.setObjectName(props.id ? props.id : "")
+        this.qLabel.setText(props.text);
+        this.qLabel.setFont(FontProvider.getFont(props.font ? props.font : Fonts.Subtitle))
         this.qLabel.setFixedHeight(20);
     }
 
