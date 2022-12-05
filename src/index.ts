@@ -124,6 +124,7 @@ win.setStyleSheet(`
     border: none;
     background-color: #f0f0f0;
     border-radius: 15px;
+    padding: 5px;
 }
 
 #config {
